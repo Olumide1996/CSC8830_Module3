@@ -1,0 +1,9 @@
+{
+  "input": "data/sample_image.png",
+  "kernel_size": 3,
+  "sigma": 0.8,
+  "mae": 8.371342296062709e-14,
+  "rmse": 1.0560494959817684e-13,
+  "max_abs_error": 5.684341886080801e-13,
+  "mean_abs_diff": 8.371342296062709e-14
+}
