@@ -86,6 +86,3 @@ Then open the local URL shown by Streamlit, normally `http://localhost:8501`.
 
 The discrete Fourier transform converts **circular convolution** into multiplication. To match ordinary linear convolution with zero padding, the implementation pads the image and kernel to `(H + Kh - 1) x (W + Kw - 1)` before taking the FFT, then crops the centered result.
 
-## GitHub requirement
-
-Create a GitHub repository for this project and include its URL in the final PDF submission.
