@@ -40,6 +40,111 @@ st.markdown(
     "from direct spatial filtering with the result from FFT multiplication."
 )
 
+
+# ------------------------------------------------------------------
+# Saved outputs from the completed validation experiment
+# ------------------------------------------------------------------
+
+st.header("Completed validation example")
+
+st.write(
+    "The images and metrics below are the saved outputs from the completed "
+    "9×9 Gaussian-blur experiment with sigma = 2.0. You can review the "
+    "completed result without uploading an image."
+)
+
+saved_output_dir = ROOT / "outputs"
+
+saved_input_path = saved_output_dir / "input.png"
+saved_spatial_path = saved_output_dir / "spatial_blur.png"
+saved_frequency_path = saved_output_dir / "frequency_blur.png"
+saved_difference_path = saved_output_dir / "absolute_difference.png"
+saved_input_spectrum_path = saved_output_dir / "input_spectrum.png"
+saved_frequency_spectrum_path = saved_output_dir / "frequency_blur_spectrum.png"
+saved_metrics_path = saved_output_dir / "metrics.json"
+
+saved_col1, saved_col2, saved_col3 = st.columns(3)
+
+with saved_col1:
+    st.image(
+        str(saved_input_path),
+        caption="Saved original image",
+        width="stretch",
+    )
+
+with saved_col2:
+    st.image(
+        str(saved_spatial_path),
+        caption="Saved spatial-convolution result",
+        width="stretch",
+    )
+
+with saved_col3:
+    st.image(
+        str(saved_frequency_path),
+        caption="Saved Fourier-domain result",
+        width="stretch",
+    )
+
+if saved_metrics_path.exists():
+    try:
+        import json
+
+        saved_metrics = json.loads(saved_metrics_path.read_text(encoding="utf-8"))
+
+        sm1, sm2, sm3 = st.columns(3)
+        sm1.metric("Mean absolute error", f"{saved_metrics['mae']:.3e}")
+        sm2.metric("RMSE", f"{saved_metrics['rmse']:.3e}")
+        sm3.metric(
+            "Maximum absolute error",
+            f"{saved_metrics['max_abs_error']:.3e}",
+        )
+
+        if saved_metrics.get("byte_outputs_equal") is True:
+            st.success(
+                "The saved 8-bit spatial and Fourier-domain outputs are identical."
+            )
+        else:
+            st.info("The saved outputs differ only by numerical precision.")
+    except Exception as exc:
+        st.warning(f"Could not read the saved metrics: {exc}")
+
+with st.expander("Saved difference and Fourier-domain outputs"):
+    diff_col1, diff_col2 = st.columns(2)
+
+    with diff_col1:
+        st.image(
+            str(saved_difference_path),
+            caption="Saved 8-bit absolute difference",
+            width="stretch",
+        )
+
+    with diff_col2:
+        st.image(
+            str(saved_frequency_spectrum_path),
+            caption="Saved blurred-image Fourier magnitude",
+            width="stretch",
+        )
+
+    st.image(
+        str(saved_input_spectrum_path),
+        caption="Saved original-image Fourier magnitude",
+        width="stretch",
+    )
+
+with st.expander("Saved Gaussian kernel used in the experiment"):
+    saved_kernel = gaussian_kernel(9, 2.0)
+    st.dataframe(np.round(saved_kernel, 5), width="stretch")
+
+st.divider()
+
+
+# ------------------------------------------------------------------
+# Manual experiment
+# ------------------------------------------------------------------
+
+st.header("Run the experiment yourself")
+
 uploaded = st.file_uploader("Upload an image", type=["png", "jpg", "jpeg", "bmp"])
 
 col1, col2 = st.columns(2)
@@ -73,11 +178,11 @@ if uploaded is not None:
     st.subheader("Results")
     a, b, c = st.columns(3)
     with a:
-        st.image(image_rgb, caption="Original image", use_container_width=True)
+        st.image(image_rgb, caption="Original image", width="stretch")
     with b:
-        st.image(spatial_rgb, caption="Spatial convolution", use_container_width=True)
+        st.image(spatial_rgb, caption="Spatial convolution", width="stretch")
     with c:
-        st.image(frequency_rgb, caption="Fourier-domain equivalent", use_container_width=True)
+        st.image(frequency_rgb, caption="Fourier-domain equivalent", width="stretch")
 
     st.subheader("Numerical validation")
     m1, m2, m3 = st.columns(3)
@@ -91,16 +196,16 @@ if uploaded is not None:
         st.warning("The results are close, but the numerical difference is above the chosen tolerance.")
 
     st.write(f"8-bit output images identical: **{byte_outputs_equal}** (maximum 8-bit difference: **{byte_max_error}**)")
-    st.image(byte_difference, caption="8-bit absolute difference (black means no visible difference)", use_container_width=True)
+    st.image(byte_difference, caption="8-bit absolute difference (black means no visible difference)", width="stretch")
 
     s1, s2 = st.columns(2)
     with s1:
-        st.image(frequency_magnitude(image), caption="Original image Fourier magnitude", use_container_width=True)
+        st.image(frequency_magnitude(image), caption="Original image Fourier magnitude", width="stretch")
     with s2:
-        st.image(frequency_magnitude(frequency), caption="Blurred image Fourier magnitude", use_container_width=True)
+        st.image(frequency_magnitude(frequency), caption="Blurred image Fourier magnitude", width="stretch")
 
     st.subheader("Gaussian kernel")
-    st.dataframe(np.round(kernel, 5), use_container_width=True)
+    st.dataframe(np.round(kernel, 5), width="stretch")
 
 else:
     st.info("Upload an image above to run the experiment.")
